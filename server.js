@@ -95,7 +95,7 @@ app.get("/departments", (req, res) => {
 
 // Page Not Found (Error 404)
 app.get("*", (req, res) => {
-    res.status(404).send("Minions! Where is the page? Fetch. Me. The. Page. NOW!");
+    res.status(404).sendFile(path.join(__dirname, "views/404.html"));
 });
 
 /* ---------------------------------------- */
