@@ -5,6 +5,7 @@ var fs = require("fs");
 var employees, departments;
 
 // Initialize the objects that will hold our data.
+// var initialize = function() {
 module.exports.initialize = function (){
 
     // Set up a new promise to read the data files, parse the data and initialize the objects.
@@ -59,23 +60,27 @@ module.exports.getAllEmployees = function (){
 } // getAllEmployees()
 
 // Get only the employees that are managers
+// var getManagers = function() {
 module.exports.getManagers = function (){
 
     // Set up a new promise to iterate through the employees object in search of the managers.
     return new Promise( function(resolve, reject){
 
         // Declare a temporary variable to hold the managers.
-        var managers;
+        var managers = new Array();
 
         // Check if there are any employees in the object.
         if(employees.length > 0) {
             
+            console.log(employees.length);
+
             // Iterate through the employees array in search for the managers.
-            employees.foreach(function(element){
-                
+            employees.forEach(function(element){
+
                 // If the current employee is a manager, store it in the managers object.
-                if(element.isManager == true)
+                if(element.isManager == true){
                     managers.push(element);
+                } // if()
             
             }); //employees.foreach()
         
@@ -84,7 +89,7 @@ module.exports.getManagers = function (){
                 reject("No results were found by the minions.");
 
             // If any result was found, return the object with the employees.
-            resolve(employees);
+            resolve(managers);
         
         } else {
             
@@ -113,3 +118,5 @@ module.exports.getDepartments = function (){
     } ); // return new Promise()
 
 } // getDepartments()
+
+// initialize().then(() => { getManagers() });

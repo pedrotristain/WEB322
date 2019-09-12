@@ -25,17 +25,58 @@ app.get("/about", (req, res) => {
 
 // Employees
 app.get("/employees", (req, res) => {
-    res.send("To DO: Tell the minions to fetch me all the employees that are managers. And do it F A S T!");
+    
+    //res.send("To DO: Tell the minions to fetch me all the employees that are managers. And do it F A S T!");
+    
+    // Attempt to get all the employees.
+    data_serv.getAllEmployees().then((data) => {
+
+        // If successfull, display them as a JSON object.
+        res.json(data);
+
+    }).catch((err) => { 
+    
+        // If an error is thrown, display an error message as a JSON object.
+        res.json("{message: 'The minions did done goof again...'}");
+
+    }); //data_serv.getAllEmployees()
+
 });
 
 // Managers
 app.get("/managers", (req, res) => {
-    res.send("To DO: Tell the minions to fetch me all the employees, and THEN send everyone back except for the managers.");
+    
+    // Attempt to get only the employees that are managers.
+    data_serv.getManagers().then((data) => {
+
+        // If successfull, display them as a JSON object.
+        res.json(data);
+
+    }).catch((err) => { 
+    
+        // If an error is thrown, display an error message as a JSON object.
+        res.json("{message: 'The minions did done goof again...'}");
+
+    }); //data_serv.getManagers()
+
 });
 
 // Departments
 app.get("/departments", (req, res) => {
-    res.send("To DO: Force the minions to rebuild all the departments. And then, make them bring the list back to me.");
+    
+    // Attempt to get only the departments that are managers.
+    data_serv.getDepartments().then((data) => {
+
+        // If successfull, display them as a JSON object.
+        res.json(data);
+
+    }).catch((err) => { 
+    
+        // If an error is thrown, display an error message as a JSON object.
+        res.json("{message: 'The minions did done goof again...'}");
+
+    }); //data_serv.getDepartments()
+
 });
 
 /* -----------  Miscellaneous  ------------ */
@@ -60,6 +101,6 @@ data_serv.initialize().then(() => {
 
     // Throw an error.
     console.log("Minions! Fix the server! NOW!");
-    
+
 });
 
