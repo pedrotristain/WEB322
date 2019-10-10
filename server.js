@@ -33,6 +33,16 @@ app.get("/about", (req, res) => {
     res.sendFile( path.join(__dirname, "views/about.html") );
 });
 
+// About
+app.get("/employees/add", (req, res) => {
+    res.sendFile( path.join(__dirname, "views/addEmployee.html") );
+});
+
+// About
+app.get("/images/add", (req, res) => {
+    res.sendFile( path.join(__dirname, "views/addImage.html") );
+});
+
 /* -----------  Private Routes  ----------- */
 
 // Employees
