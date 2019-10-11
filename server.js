@@ -93,7 +93,7 @@ app.get("/employees", (req, res) => {
 
 }); // app.get("/employees")
 
-app.get("/employees/:num", (req, res) => {
+app.get("/employee/:num", (req, res) => {
 
     data_serv.getEmployeeByNum(req.params.num).then((data) => {
 
