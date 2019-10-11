@@ -19,7 +19,7 @@ var fs = require("fs");
 
 // Upload set up
 const storage = multer.diskStorage({
-    destination: "./public/photos/",
+    destination: "./public/images/uploaded/",
     filename: function (req, file, cb) {
         cb(null, Date.now() + "_" + path.extname(file.originalname));
     }
@@ -135,7 +135,7 @@ app.get("/images/add", (req, res) => {
 
 /* -----------  POST Routes  ----------- */
 
-app.post("/images/add", upload.single("photo"), (req, res) => {
+app.post("/images/add", upload.single("imageFile"), (req, res) => {
     res.redirect("/images");
 });
 
