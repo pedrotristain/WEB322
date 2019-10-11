@@ -13,9 +13,11 @@
 var HTTP_PORT = process.env.PORT || 8080;
 var express = require("express");
 var app = express();
-var path = require("path");
-var multer = require("multer");
-var fs = require("fs");
+
+const path = require("path");
+const multer = require("multer");
+const fs = require("fs");
+const bodyParser = require("body-parser");
 
 // Upload set up
 const storage = multer.diskStorage({
@@ -31,6 +33,9 @@ var data_serv = require("./data-service");
 
 // setup the static middleware for css
 app.use(express.static('public'));
+
+// setup the middleware body parser
+app.use(bodyParser.urlencoded({ extended: true }));
 
 /* ----------- Aditional Routes ----------- */
 
@@ -135,8 +140,22 @@ app.get("/images/add", (req, res) => {
 
 /* -----------  POST Routes  ----------- */
 
+// Image Add
 app.post("/images/add", upload.single("imageFile"), (req, res) => {
+    
     res.redirect("/images");
+
+});
+
+// Employee Add
+app.post("/employees/add", (req, res) => {
+
+    data_serv.addEmployee(req.body).then((data) => {
+    
+        res.redirect("/employees");
+
+    }); // addEmployee(req.body)
+
 });
 
 /* -----------  Miscellaneous  ------------ */

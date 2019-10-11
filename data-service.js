@@ -119,4 +119,26 @@ module.exports.getDepartments = function (){
 
 } // getDepartments()
 
+// Add new Employee
+module.exports.addEmployee = function (emp_data){
+
+    // Set up a new promise to return the departments object
+    return new Promise( function(resolve, reject){
+
+        // If isManager is undefined, set it to false
+        if(emp_data.isManager === undefined)
+            emp_data.isManager = false;
+        
+        // Set the employee number to be equal to the amount of employees + 1
+        emp_data.employeeNum = employees.length + 1;
+
+        // Add the employee into the array
+        employees.push(emp_data);
+
+        resolve();
+
+    } ); // return new Promise()
+
+} // addEmployee()
+
 // initialize().then(() => { getManagers() });
