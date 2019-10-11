@@ -15,6 +15,7 @@ var express = require("express");
 var app = express();
 var path = require("path");
 var multer = require("multer");
+var fs = require("fs");
 
 // Upload set up
 const storage = multer.diskStorage({
@@ -32,7 +33,8 @@ var data_serv = require("./data-service");
 app.use(express.static('public'));
 
 /* ----------- Aditional Routes ----------- */
-/* -----------  Public Routes  ------------ */
+
+/* -----------  GET Routes  ------------ */
 
 // Home
 app.get("/", (req, res) => {
@@ -43,18 +45,6 @@ app.get("/", (req, res) => {
 app.get("/about", (req, res) => {
     res.sendFile( path.join(__dirname, "views/about.html") );
 });
-
-// About
-app.get("/employees/add", (req, res) => {
-    res.sendFile( path.join(__dirname, "views/addEmployee.html") );
-});
-
-// About
-app.get("/images/add", (req, res) => {
-    res.sendFile( path.join(__dirname, "views/addImage.html") );
-});
-
-/* -----------  Private Routes  ----------- */
 
 // Employees
 app.get("/employees", (req, res) => {
@@ -100,6 +90,8 @@ app.get("/departments", (req, res) => {
     // Attempt to get only the departments that are managers.
     data_serv.getDepartments().then((data) => {
 
+        console.log(data);
+
         // If successfull, display them as a JSON object.
         res.json(data);
 
@@ -110,6 +102,41 @@ app.get("/departments", (req, res) => {
 
     }); //data_serv.getDepartments()
 
+});
+
+// Images
+app.get("/images", (req, res) => {
+    
+    var _path = "./public/images/uploaded";
+    var data = { "images" : [] };
+
+    // Read the files in the images/uploaded folder
+    fs.readdir(_path, function(err, items) {
+
+        data.images = items;
+
+        // Reply with the json object
+        res.json(data);
+
+    });
+    
+});
+
+// Add Employees
+app.get("/employees/add", (req, res) => {
+    res.sendFile( path.join(__dirname, "views/addEmployee.html") );
+});
+
+// Add Images
+app.get("/images/add", (req, res) => {
+    res.sendFile( path.join(__dirname, "views/addImage.html") );
+});
+
+
+/* -----------  POST Routes  ----------- */
+
+app.post("/images/add", upload.single("photo"), (req, res) => {
+    res.redirect("/images");
 });
 
 /* -----------  Miscellaneous  ------------ */
@@ -129,6 +156,8 @@ data_serv.initialize().then(() => {
     app.listen(HTTP_PORT);
 
     console.log("Express http server listening on '" + HTTP_PORT + "'");
+
+    
 
 }).catch(() => {
 
