@@ -59,6 +59,158 @@ module.exports.getAllEmployees = function (){
 
 } // getAllEmployees()
 
+// Get employees by the status [ 'Part time' or 'Full time']
+module.exports.getEmployeesByStatus = function (_par){
+
+    // Set up a new promise to return the employees object.
+    return new Promise( function(resolve, reject){
+
+        // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
+        if(employees.length === 0)
+            reject("No results were found by the minions.");
+        else
+            
+            // Create a new array to hold the found employees.
+            var result = [];
+
+            if(employees.length > 0) {
+
+                // Search the employees array for the employees of the same status as the parameter.
+                employees.forEach(function(e){
+                    
+                    // If a match is found, add it to the placeholder array.
+                    if(e.status == _par )
+                        result.push(e);
+
+                }); // foreach()
+
+            } // if( > 0)
+
+            // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
+            if(result.length == 0)
+                reject("No employees were found by the minions using getEmployeesByStatus()");
+            else
+                resolve(result);
+
+    } ); // return new Promise()
+
+} // getEmployeesByStatus()
+
+// Get employees by the department number
+module.exports.getEmployeesByDepartment = function(_par) {
+
+     // Set up a new promise to return the employees object.
+     return new Promise( function(resolve, reject){
+
+        // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
+        if(employees.length === 0)
+            reject("No results were found by the minions.");
+        else
+            
+            // Create a new array to hold the found employees.
+            var result = [];
+
+            if(employees.length > 0) {
+
+                // Search the employees array for the employees of the same status as the parameter.
+                employees.forEach(function(e){
+
+                    // If a match is found, add it to the placeholder array.
+                    if(e.department == _par )
+                        result.push(e);
+
+                }); // foreach()
+
+            } // if( > 0)
+
+            // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
+            if(result.length == 0)
+                reject("No employees were found by the minions using getEmployeesByDepartment()");
+            else
+                resolve(result);
+
+    } ); // return new Promise()
+
+} // getEmployeesByDepartment()
+
+// Get employees by their manager number
+module.exports.getEmployeesByManager = function(_par) {
+
+    // Set up a new promise to return the employees object.
+    return new Promise( function(resolve, reject){
+
+       // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
+       if(employees.length === 0)
+           reject("No results were found by the minions.");
+       else
+           
+           // Create a new array to hold the found employees.
+           var result = [];
+
+           if(employees.length > 0) {
+
+               // Search the employees array for the employees of the same status as the parameter.
+               employees.forEach(function(e){
+
+                   // If a match is found, add it to the placeholder array.
+                   if(e.employeeManagerNum == _par )
+                       result.push(e);
+
+               }); // foreach()
+
+           } // if( > 0)
+
+           // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
+           if(result.length == 0)
+               reject("No employees were found by the minions using getEmployeesByManager()");
+           else
+               resolve(result);
+
+   } ); // return new Promise()
+
+} // getEmployeesByManager()
+
+// Retrieve one employee by their employee number
+module.exports.getEmployeeByNum = function(_par) {
+
+    // Set up a new promise to return the employees object.
+    return new Promise( function(resolve, reject){
+
+       // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
+       if(employees.length === 0)
+           reject("No results were found by the minions.");
+       else
+           
+           // Create a new array to hold the found employees.
+           var result = [];
+
+           if(employees.length > 0) {
+
+               // Search the employees array for the employees of the same status as the parameter.
+               for(let x = 0; x < employees.length; x++ ){
+
+                    let e = employees[x];
+
+                   // If a match is found, add it to the placeholder array and stop the loop.
+                   if(e.employeeNum == _par ){
+                       result.push(e);
+                       x = employees.length; // Break out of the loop
+                   } // if()
+
+               }; // for()
+
+           } // if( > 0)
+
+           // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
+           if(result.length == 0)
+               reject("No employees were found by the minions using getEmployeeByNum()");
+           else
+               resolve(result);
+
+   } ); // return new Promise()
+
+} // getEmployeeByNum()
+
 // Get only the employees that are managers
 // var getManagers = function() {
 module.exports.getManagers = function (){
@@ -72,8 +224,6 @@ module.exports.getManagers = function (){
         // Check if there are any employees in the object.
         if(employees.length > 0) {
             
-            console.log(employees.length);
-
             // Iterate through the employees array in search for the managers.
             employees.forEach(function(element){
 

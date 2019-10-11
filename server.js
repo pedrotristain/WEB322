@@ -51,25 +51,63 @@ app.get("/about", (req, res) => {
     res.sendFile( path.join(__dirname, "views/about.html") );
 });
 
+function displayEmployees(data, res) {
+    res.json(data);
+}
+
 // Employees
 app.get("/employees", (req, res) => {
     
-    //res.send("To DO: Tell the minions to fetch me all the employees that are managers. And do it F A S T!");
-    
-    // Attempt to get all the employees.
-    data_serv.getAllEmployees().then((data) => {
+    // If quer.statyus, fetch employees by status
+    if(req.query.status)
+        data_serv.getEmployeesByStatus(req.query.status)
+            .then((data) => { res.json(data); })
+            .catch((err) => { res.json("{message: '" + err + "'}"); });
 
-        // If successfull, display them as a JSON object.
+    // Else, if query.department, fetch employee by department number
+    else if(req.query.department)
+        data_serv.getEmployeesByDepartment(req.query.department)
+            .then((data) => { res.json(data); })
+            .catch((err) => { res.json("{message: '" + err + "'}"); });
+    
+    // Else, if query.manager, fetch employee by manager number
+    else if(req.query.manager)
+        data_serv.getEmployeesByManager(req.query.manager)
+            .then((data) => { res.json(data); })
+            .catch((err) => { res.json("{message: '" + err + "'}"); });
+
+    // Else, fetch all employees
+    else 
+        // Attempt to get all the employees.
+        data_serv.getAllEmployees().then((data) => {
+
+            // If successfull, display them as a JSON object.
+            res.json(data);
+
+        }).catch((err) => { 
+        
+            // If an error is thrown, display an error message as a JSON object.
+            res.json("{message: '" + err + "'}");
+
+        }); //data_serv.getAllEmployees()
+
+}); // app.get("/employees")
+
+app.get("/employees/:num", (req, res) => {
+
+    data_serv.getEmployeeByNum(req.params.num).then((data) => {
+
         res.json(data);
 
-    }).catch((err) => { 
-    
+    })
+    .catch((err => {
+
         // If an error is thrown, display an error message as a JSON object.
-        res.json("{message: 'The minions did done goof again...'}");
+        res.json("{message: '" + err + "'}");
 
-    }); //data_serv.getAllEmployees()
+    })); // data_serv.getEmployeeByNum()
 
-});
+}); // app.get("/employees/:num")
 
 // Managers
 app.get("/managers", (req, res) => {
@@ -87,15 +125,13 @@ app.get("/managers", (req, res) => {
 
     }); //data_serv.getManagers()
 
-});
+}); // app.get("/managers")
 
 // Departments
 app.get("/departments", (req, res) => {
     
     // Attempt to get only the departments that are managers.
     data_serv.getDepartments().then((data) => {
-
-        console.log(data);
 
         // If successfull, display them as a JSON object.
         res.json(data);
@@ -107,7 +143,7 @@ app.get("/departments", (req, res) => {
 
     }); //data_serv.getDepartments()
 
-});
+}); // app.get("/departments")
 
 // Images
 app.get("/images", (req, res) => {
@@ -123,9 +159,9 @@ app.get("/images", (req, res) => {
         // Reply with the json object
         res.json(data);
 
-    });
+    }); // fs.readdir()
     
-});
+}); // app.get("/images")
 
 // Add Employees
 app.get("/employees/add", (req, res) => {
@@ -175,8 +211,6 @@ data_serv.initialize().then(() => {
     app.listen(HTTP_PORT);
 
     console.log("Express http server listening on '" + HTTP_PORT + "'");
-
-    
 
 }).catch(() => {
 
