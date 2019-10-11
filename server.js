@@ -14,6 +14,17 @@ var HTTP_PORT = process.env.PORT || 8080;
 var express = require("express");
 var app = express();
 var path = require("path");
+var multer = require("multer");
+
+// Upload set up
+const storage = multer.diskStorage({
+    destination: "./public/photos/",
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + "_" + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 var data_serv = require("./data-service");
 
