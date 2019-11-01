@@ -173,7 +173,7 @@ app.get("/images", (req, res) => {
         data.images = items;
 
         // Reply with the json object
-        res.json(data);
+        res.render('images', data);
 
     }); // fs.readdir()
     
