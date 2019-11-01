@@ -48,6 +48,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Set up control module
 var data_serv = require("./data-service");
 
+// Navbar fix for active link
+app.use(function(req,res,next){
+    let route = req.baseUrl + req.path;
+    app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
+    next();
+});
+
 /* ----------- Aditional Routes ----------- */
 
 /* -----------  GET Routes  ------------ */
@@ -59,7 +66,7 @@ app.get("/", (req, res) => {
 
 // About
 app.get("/about", (req, res) => {
-    res.sendFile( path.join(__dirname, "views/about.html") );
+    res.render('about');
 });
 
 function displayEmployees(data, res) {
@@ -176,14 +183,13 @@ app.get("/images", (req, res) => {
 
 // Add Employees
 app.get("/employees/add", (req, res) => {
-    res.sendFile( path.join(__dirname, "views/addEmployee.html") );
+    res.render('addEmployee');
 });
 
 // Add Images
 app.get("/images/add", (req, res) => {
-    res.sendFile( path.join(__dirname, "views/addImage.html") );
+    res.render('addImage');
 });
-
 
 /* -----------  POST Routes  ----------- */
 
