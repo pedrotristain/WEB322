@@ -34,7 +34,14 @@ const upload = multer({ storage: storage });
 // Handlebars set up
 app.engine('.hbs', exphbs({ 
     extname: '.hbs', 
-    defaultLayout: 'main' 
+    defaultLayout: 'main',
+    helpers: {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        }
+    }
 }));
 
 app.set('view engine', '.hbs');
