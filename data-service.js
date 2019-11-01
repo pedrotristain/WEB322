@@ -272,7 +272,7 @@ module.exports.getDepartments = function (){
 // Add new Employee
 module.exports.addEmployee = function (emp_data){
 
-    // Set up a new promise to return the departments object
+    // Set up a new promise to add the new employee
     return new Promise( function(resolve, reject){
 
         // If isManager is undefined, set it to false
@@ -290,5 +290,29 @@ module.exports.addEmployee = function (emp_data){
     } ); // return new Promise()
 
 } // addEmployee()
+
+// Add new Employee
+module.exports.updateEmployee = function (emp_data){
+
+    // Set up a new promise to update the employee's data
+    return new Promise( function(resolve, reject){
+
+        // If isManager is undefined, set it to false
+        if(emp_data.isManager === undefined)
+            emp_data.isManager = false;
+
+        // Itterate through the employees array looking for a match for the employee number
+        // If found, replace the object with the one received from the form
+        for(var x = 0; x < employees.length; x++){
+            if(employees[x].employeeNum == emp_data.employeeNum)
+                employees[x] = emp_data;
+        } // for()
+        
+        // Conclude the function and resolve the promise.
+        resolve();
+
+    } ); // return new Promise()
+
+} // updateEmployee()
 
 // initialize().then(() => { getManagers() });

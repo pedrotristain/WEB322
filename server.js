@@ -131,13 +131,13 @@ app.get("/employee/:num", (req, res) => {
 
     data_serv.getEmployeeByNum(req.params.num).then((data) => {
 
-        res.json(data);
+        res.render('employee', { employee: data[0] });
 
     })
     .catch((err => {
 
         // If an error is thrown, display an error message.
-        res.json("{message: '" + err + "'}");
+        res.render({message: "No Employee Found"});
 
     })); // data_serv.getEmployeeByNum()
 
@@ -206,6 +206,17 @@ app.post("/employees/add", (req, res) => {
         res.redirect("/employees");
 
     }); // addEmployee(req.body)
+
+});
+
+// Employee Update
+app.post("/employee/update", (req, res) => {
+
+    data_serv.updateEmployee(req.body).then((data) => {
+
+        res.redirect("/employees");
+
+    }); // updateEmployee()
 
 });
 
