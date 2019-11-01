@@ -115,12 +115,12 @@ app.get("/employees", (req, res) => {
         // Attempt to get all the employees.
         data_serv.getAllEmployees().then((data) => {
 
-            // If successfull, display them as a JSON object.
+            // If successfull, display them
             res.render('employees', { employees: data });
 
         }).catch((err) => { 
         
-            // If an error is thrown, display an error message as a JSON object.
+            // If an error is thrown, display an error message
             res.render({message: "No Results For All Employees"});
 
         }); //data_serv.getAllEmployees()
@@ -136,7 +136,7 @@ app.get("/employee/:num", (req, res) => {
     })
     .catch((err => {
 
-        // If an error is thrown, display an error message as a JSON object.
+        // If an error is thrown, display an error message.
         res.json("{message: '" + err + "'}");
 
     })); // data_serv.getEmployeeByNum()
@@ -146,15 +146,15 @@ app.get("/employee/:num", (req, res) => {
 // Departments
 app.get("/departments", (req, res) => {
     
-    // Attempt to get only the departments that are managers.
+    // Attempt to get all departments.
     data_serv.getDepartments().then((data) => {
 
-        // If successfull, display them as a JSON object.
+        // If successfull, display them.
         res.render("departments", {departments: data});
 
     }).catch((err) => { 
     
-        // If an error is thrown, display an error message as a JSON object.
+        // If an error is thrown, display an error message.
         res.render("departments", {message: "No Departments Found"});
 
     }); //data_serv.getDepartments()
