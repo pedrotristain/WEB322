@@ -40,6 +40,15 @@ app.engine('.hbs', exphbs({
             return '<li' + 
                 ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
                 '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function (lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
         }
     }
 }));
@@ -133,24 +142,6 @@ app.get("/employee/:num", (req, res) => {
     })); // data_serv.getEmployeeByNum()
 
 }); // app.get("/employees/:num")
-
-// Managers
-app.get("/managers", (req, res) => {
-    
-    // Attempt to get only the employees that are managers.
-    data_serv.getManagers().then((data) => {
-
-        // If successfull, display them as a JSON object.
-        res.json(data);
-
-    }).catch((err) => { 
-    
-        // If an error is thrown, display an error message as a JSON object.
-        res.json("{message: 'The minions did done goof again...'}");
-
-    }); //data_serv.getManagers()
-
-}); // app.get("/managers")
 
 // Departments
 app.get("/departments", (req, res) => {
