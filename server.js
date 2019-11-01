@@ -95,20 +95,20 @@ app.get("/employees", (req, res) => {
     // If quer.statyus, fetch employees by status
     if(req.query.status)
         data_serv.getEmployeesByStatus(req.query.status)
-            .then((data) => { res.json(data); })
-            .catch((err) => { res.json("{message: '" + err + "'}"); });
+            .then((data) => { res.render('employees', { employees: data }); })
+            .catch((err) => { res.render({message: "No Results For Employees By Status"}); });
 
     // Else, if query.department, fetch employee by department number
     else if(req.query.department)
         data_serv.getEmployeesByDepartment(req.query.department)
-            .then((data) => { res.json(data); })
-            .catch((err) => { res.json("{message: '" + err + "'}"); });
+            .then((data) => { res.render('employees', { employees: data }); })
+            .catch((err) => { res.render({message: "No Results For Employees By Department"}); });
     
     // Else, if query.manager, fetch employee by manager number
     else if(req.query.manager)
         data_serv.getEmployeesByManager(req.query.manager)
-            .then((data) => { res.json(data); })
-            .catch((err) => { res.json("{message: '" + err + "'}"); });
+            .then((data) => { res.render('employees', { employees: data }); })
+            .catch((err) => { res.render({message: "No Results For Employees By Manager"}); });
 
     // Else, fetch all employees
     else 
@@ -116,12 +116,12 @@ app.get("/employees", (req, res) => {
         data_serv.getAllEmployees().then((data) => {
 
             // If successfull, display them as a JSON object.
-            res.json(data);
+            res.render('employees', { employees: data });
 
         }).catch((err) => { 
         
             // If an error is thrown, display an error message as a JSON object.
-            res.json("{message: '" + err + "'}");
+            res.render({message: "No Results For All Employees"});
 
         }); //data_serv.getAllEmployees()
 
@@ -213,7 +213,7 @@ app.post("/employees/add", (req, res) => {
 
 // Page Not Found (Error 404)
 app.get("*", (req, res) => {
-    res.status(404).sendFile(path.join(__dirname, "views/404.html"));
+    res.status(404).render('404');
 });
 
 /* ---------------------------------------- */
