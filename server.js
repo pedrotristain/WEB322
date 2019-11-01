@@ -3,11 +3,12 @@
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Pedro Zelada Souza Student ID: 116427188 Date: 11-10-2019
+*  Name: Pedro Zelada Souza Student ID: 116427188 Date: 31-10-2019
 *
 *  Online (Heroku) Link: https://pzelada-souza-web322.herokuapp.com/
 *
 ********************************************************************************/ 
+
 
 
 var HTTP_PORT = process.env.PORT || 8080;
@@ -18,6 +19,7 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 const bodyParser = require("body-parser");
+const exphbs = require('express-handlebars');
 
 // Upload set up
 const storage = multer.diskStorage({
@@ -29,7 +31,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-var data_serv = require("./data-service");
+// Handlebars set up
+app.engine('.hbs', exphbs({ 
+    extname: '.hbs', 
+    defaultLayout: 'main' 
+}));
+
+app.set('view engine', '.hbs');
 
 // setup the static middleware for css
 app.use(express.static('public'));
@@ -37,13 +45,16 @@ app.use(express.static('public'));
 // setup the middleware body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Set up control module
+var data_serv = require("./data-service");
+
 /* ----------- Aditional Routes ----------- */
 
 /* -----------  GET Routes  ------------ */
 
 // Home
 app.get("/", (req, res) => {
-    res.sendFile( path.join(__dirname, "views/home.html") );
+    res.render('home');
 });
 
 // About
