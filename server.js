@@ -150,12 +150,12 @@ app.get("/departments", (req, res) => {
     data_serv.getDepartments().then((data) => {
 
         // If successfull, display them as a JSON object.
-        res.json(data);
+        res.render("departments", {departments: data});
 
     }).catch((err) => { 
     
         // If an error is thrown, display an error message as a JSON object.
-        res.json("{message: 'The minions did done goof again...'}");
+        res.render("departments", {message: "No Departments Found"});
 
     }); //data_serv.getDepartments()
 
