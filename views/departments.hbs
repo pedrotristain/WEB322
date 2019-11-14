@@ -23,16 +23,20 @@
                 <tr>
                     <th>Department Number</th>
                     <th>Department Name</th>
+                    <th></th>
                 </tr>
             
             {{#each departments}}
 
                 <tr>
                     <td>
-                        <a href="/employees?department={{departmentId}}">{{departmentId}}</a>
+                        <a href="/department/{{departmentId}}">{{departmentId}}</a>
                     </td>
                     <td>
-                        <a href="/employees?department={{departmentId}}">{{departmentName}}</a>
+                        <a href="/department/{{departmentId}}">{{departmentName}}</a>
+                    </td>
+                    <td>
+                        <a class="btn btn-danger" href="/departments/delete/{{departmentId}}">Remove</a>
                     </td>
                 </tr>
             
