@@ -9,7 +9,7 @@ var sequelize = new Sequelize('de60tk1ii5hl8i', 'tggqqoeeagnwbc', '1e3948f0a7dce
     dialectOptions: {
         ssl: true
     }
-}); // new Sequelize();
+}); // new Sequelize(); as
 
 // Establishing database connection
 sequelize
