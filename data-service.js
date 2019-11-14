@@ -1,43 +1,87 @@
-// Required module(s)
-var fs = require("fs");
+// Required modules
+const Sequelize = require('sequelize');
 
-// Declare the arrays that will hold our data.
-var employees, departments;
+// Setting up Database configuration
+var sequelize = new Sequelize('de60tk1ii5hl8i', 'tggqqoeeagnwbc', '1e3948f0a7dcef779d3d695f80688c844d722af6fd1e0a9c3a3195abcafa7904', {
+    host: 'ec2-54-243-239-199.compute-1.amazonaws.com',
+    dialect: 'postgres',
+    port: 5432,
+    dialectOptions: {
+        ssl: true
+    }
+}); // new Sequelize();
+
+// Establishing database connection
+sequelize
+    .authenticate()
+    .then(function() {
+        console.log('Connection has been established successfully.');
+    })
+    .catch(function(err) {
+        console.log('Unable to connect to the database:', err);
+    });
+
+// Defining the data models
+var Employee = sequelize.define('Employee', {
+
+    employeeNum : {
+        type : Sequelize.INTEGER,
+        primaryKey : true,
+        autoIncrement : true
+    },
+    firstName : Sequelize.STRING,
+    lastName : Sequelize.STRING,
+    email : Sequelize.STRING,
+    SSN : Sequelize.STRING,
+    addressStreet : Sequelize.STRING,
+    addressCity : Sequelize.STRING,
+    addressState : Sequelize.STRING,
+    addressPostal : Sequelize.STRING,
+    maritalStatus : Sequelize.STRING,
+    isManager : Sequelize.BOOLEAN,
+    employeeManagerNum : Sequelize.INTEGER,
+    status : Sequelize.STRING,
+    hireDate : Sequelize.STRING
+
+}); // Employee()
+
+var Department = sequelize.define('Department', {
+    
+    departmentId : {
+        type : Sequelize.INTEGER,
+        primaryKey : true,
+        autoIncrement : true
+    },
+    departmentName : Sequelize.STRING
+    
+}); // Department()
+
+// Define relationship between the models
+Department.hasMany(Employee, {foreignKey: 'department'});
 
 // Initialize the objects that will hold our data.
 // var initialize = function() {
 module.exports.initialize = function (){
 
-    // Set up a new promise to read the data files, parse the data and initialize the objects.
+    // Set up a new promise to synchronize the database and create the tables if needed.
     return new Promise(function(resolve, reject){
 
-        // Read the employees.json file
-        fs.readFile('./data/employees.json', 'utf8', (err, data) => {
+        // Synchronize the database and create the tables if needed.
+        // If successful, resolve the promise.
+        sequelize.sync().then(() => {
             
-            // Check for errors when reading the file.
-            if (err) 
-                reject(); // If error, reject the promise and return.
+            console.log("Synchronized successfully");
+            resolve();
             
-            // If no error is thrown, parse the data returned from the file into the object.
-            employees = JSON.parse(data);
+        })
+        // If failed, reject the promise.
+        .catch((err) => {
 
-            // Read the departments.json file
-            fs.readFile("./data/departments.json", 'utf8', (err, data) => {
+            console.log("Failed Synchronizing");
+            reject();
 
-                // Check for errors when reading the file.
-                if (err) 
-                    reject(); // If error, reject the promise and return.
-                
-                // If no error is thrown, parse the data returned from the file into the object.
-                departments = JSON.parse(data);
-
-                // If no error was thrown and both files have been read and parsed, resolve the Promise.
-                resolve();
-
-            }); // fs.readFile('departments')
-
-       }); // fs.readFile('employees')
-
+        }); // sequelize.sync()
+        
     }); // return new Promise()
 
 }; // function initialize()
@@ -45,227 +89,197 @@ module.exports.initialize = function (){
 // Get all the employees
 module.exports.getAllEmployees = function (){
 
-    // Set up a new promise to return the employees object.
+    // Set up a new promise to retrieve all employees from the Database.
     return new Promise( function(resolve, reject){
 
-        // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
-        if(employees.length === 0)
-            reject("No results were found by the minions.");
-        else
-            // If any result was found, return the object with the employees.
-            resolve(employees);
+        // Attempt to retrieve all employees from the database.
+        Employee
+            .findAll()
+            // If successful, resolve the promise and return the found data.
+            .then((data) => {
 
-    } ); // return new Promise()
+                console.log("getAllEmployees(): Retrieved all employees successfully");
+                resolve(data);
+
+            })
+            // If failed, reject the promise.
+            .catch((err) => {
+                console.log(err)
+                console.log("getAllEmployees(): Failed to retrieve all employees");
+                reject("Failed to retrieve all employees");
+
+            }); // Employee.findAll()
+
+    }); // return new Promise()
 
 } // getAllEmployees()
 
 // Get employees by the status [ 'Part time' or 'Full time']
 module.exports.getEmployeesByStatus = function (_par){
 
-    // Set up a new promise to return the employees object.
+    // Set up a new promise to retrieve employees by their status.
     return new Promise( function(resolve, reject){
 
-        // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
-        if(employees.length === 0)
-            reject("No results were found by the minions.");
-        else
-            
-            // Create a new array to hold the found employees.
-            var result = [];
+        // Attempt to retrieve all employees where status equals the received parameter.
+        Employee
+            .findAll({
+                where : {
+                    status : _par
+                }
+            })
+            // If successful, resolve the promise and return the found data.
+            .then((data) => {
 
-            if(employees.length > 0) {
+                console.log("getEmployeesByStatus(): Retrieved employees successfully");
+                resolve(data);
 
-                // Search the employees array for the employees of the same status as the parameter.
-                employees.forEach(function(e){
-                    
-                    // If a match is found, add it to the placeholder array.
-                    if(e.status == _par )
-                        result.push(e);
+            })
+            // If failed, reject the promise.
+            .catch((err) => {
 
-                }); // foreach()
+                console.log("getEmployeesByStatus(): Failed retrieve all employees");
+                reject("Failed to retrieve employees");
 
-            } // if( > 0)
+            }); // Employee.findAll()
 
-            // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
-            if(result.length == 0)
-                reject("No employees were found by the minions using getEmployeesByStatus()");
-            else
-                resolve(result);
-
-    } ); // return new Promise()
+    }); // return new Promise()
 
 } // getEmployeesByStatus()
 
 // Get employees by the department number
 module.exports.getEmployeesByDepartment = function(_par) {
 
-     // Set up a new promise to return the employees object.
-     return new Promise( function(resolve, reject){
+    // Set up a new promise to retrieve employees by their department number.
+    return new Promise( function(resolve, reject){
 
-        // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
-        if(employees.length === 0)
-            reject("No results were found by the minions.");
-        else
-            
-            // Create a new array to hold the found employees.
-            var result = [];
+        // Attempt to retrieve all employees where department equals the received parameter.
+        Employee
+            .findAll({
+                where : {
+                    department : _par
+                }
+            })
+            // If successful, resolve the promise and return the found data.
+            .then((data) => {
 
-            if(employees.length > 0) {
+                console.log("getEmployeesByDepartment(): Retrieved employees successfully");
+                resolve(data);
 
-                // Search the employees array for the employees of the same status as the parameter.
-                employees.forEach(function(e){
+            })
+            // If failed, reject the promise.
+            .catch((err) => {
 
-                    // If a match is found, add it to the placeholder array.
-                    if(e.department == _par )
-                        result.push(e);
+                console.log("getEmployeesByDepartment(): Failed retrieve all employees");
+                reject("Failed to retrieve employees");
 
-                }); // foreach()
+            }); // Employee.findAll()
 
-            } // if( > 0)
-
-            // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
-            if(result.length == 0)
-                reject("No employees were found by the minions using getEmployeesByDepartment()");
-            else
-                resolve(result);
-
-    } ); // return new Promise()
+    }); // return new Promise()
 
 } // getEmployeesByDepartment()
 
 // Get employees by their manager number
 module.exports.getEmployeesByManager = function(_par) {
 
-    // Set up a new promise to return the employees object.
+    // Set up a new promise to retrieve employees by their manager number.
     return new Promise( function(resolve, reject){
 
-       // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
-       if(employees.length === 0)
-           reject("No results were found by the minions.");
-       else
-           
-           // Create a new array to hold the found employees.
-           var result = [];
+        // Attempt to retrieve all employees where managerNum equals the received parameter.
+        Employee
+            .findAll({
+                where : {
+                    employeeManagerNum : _par
+                }
+            })
+            // If successful, resolve the promise and return the found data.
+            .then((data) => {
 
-           if(employees.length > 0) {
+                console.log("getEmployeesByManager(): Retrieved employees successfully");
+                resolve(data);
 
-               // Search the employees array for the employees of the same status as the parameter.
-               employees.forEach(function(e){
+            })
+            // If failed, reject the promise.
+            .catch((err) => {
 
-                   // If a match is found, add it to the placeholder array.
-                   if(e.employeeManagerNum == _par )
-                       result.push(e);
+                console.log("getEmployeesByManager(): Failed retrieve all employees");
+                reject("Failed to retrieve employees");
 
-               }); // foreach()
+            }); // Employee.findAll()
 
-           } // if( > 0)
-
-           // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
-           if(result.length == 0)
-               reject("No employees were found by the minions using getEmployeesByManager()");
-           else
-               resolve(result);
-
-   } ); // return new Promise()
+   }); // return new Promise()
 
 } // getEmployeesByManager()
 
 // Retrieve one employee by their employee number
 module.exports.getEmployeeByNum = function(_par) {
 
-    // Set up a new promise to return the employees object.
+    // Set up a new promise to retrieve employees by their employee number.
     return new Promise( function(resolve, reject){
 
-       // Check if there are any employees in the object. If no results, return a message through the 'reject' method.
-       if(employees.length === 0)
-           reject("No results were found by the minions.");
-       else
-           
-           // Create a new array to hold the found employees.
-           var result = [];
+        // Attempt to retrieve all employees where employeeNum equals the received parameter.
+        Employee
+            .findAll({
+                where : {
+                    employeeNum : _par
+                }
+            })
+            // If successful, resolve the promise and return the found data.
+            .then((data) => {
 
-           if(employees.length > 0) {
+                console.log("getEmployeeByNum(): Retrieved employees successfully");
+                resolve(data);
 
-               // Search the employees array for the employees of the same status as the parameter.
-               for(let x = 0; x < employees.length; x++ ){
+            })
+            // If failed, reject the promise.
+            .catch((err) => {
 
-                    let e = employees[x];
+                console.log("getEmployeeByNum(): Failed retrieve all employees");
+                reject("Failed to retrieve employees");
 
-                   // If a match is found, add it to the placeholder array and stop the loop.
-                   if(e.employeeNum == _par ){
-                       result.push(e);
-                       x = employees.length; // Break out of the loop
-                   } // if()
+            }); // Employee.findAll()
 
-               }; // for()
-
-           } // if( > 0)
-
-           // If no matches were found, reject the promise by stating so. Otherwise resolve it and return the found employees.
-           if(result.length == 0)
-               reject("No employees were found by the minions using getEmployeeByNum()");
-           else
-               resolve(result);
-
-   } ); // return new Promise()
+   }); // return new Promise()
 
 } // getEmployeeByNum()
 
-// Get only the employees that are managers
-// var getManagers = function() {
-module.exports.getManagers = function (){
+// // Get only the employees that are managers
+// // var getManagers = function() {
+// module.exports.getManagers = function (){
 
-    // Set up a new promise to iterate through the employees object in search of the managers.
-    return new Promise( function(resolve, reject){
+//     // Set up a new promise to iterate through the employees object in search of the managers.
+//     return new Promise( function(resolve, reject){
 
-        // Declare a temporary variable to hold the managers.
-        var managers = new Array();
-
-        // Check if there are any employees in the object.
-        if(employees.length > 0) {
-            
-            // Iterate through the employees array in search for the managers.
-            employees.forEach(function(element){
-
-                // If the current employee is a manager, store it in the managers object.
-                if(element.isManager == true){
-                    managers.push(element);
-                } // if()
-            
-            }); //employees.foreach()
+//         reject();
         
-            // Check if any manager was found. If not, return a message through the 'reject' method.
-            if(managers.length == 0)
-                reject("No results were found by the minions.");
+//     }); // return new Promise()
 
-            // If any result was found, return the object with the employees.
-            resolve(managers);
-        
-        } else {
-            
-            //If no results, return a message through the 'reject' method.
-            reject("No results were found by the minions.");
-        
-        } // if else
-        
-    } ); // return new Promise()
-
-} // getManagers()
+// } // getManagers()
 
 // Get all the departments
 module.exports.getDepartments = function (){
 
-    // Set up a new promise to return the departments object.
+    // Set up a new promise to retrieve all departments from database.
     return new Promise( function(resolve, reject){
 
-        // Check if there are any departments in the object. If no results, return a message through the 'reject' method.
-        if(departments.length === 0)
-            reject("No results were found by the minions.");
-        else
-            // If any result was found, return the object with the employees.
-            resolve(departments);
+        // Attempt to retrieve all departments from database.
+        Department
+            .findAll()
+            // If successful, resolve the promise and return the found data.
+            .then((data) => {
 
-    } ); // return new Promise()
+                console.log("getDepartments(): Retrieved departments successfully");
+                resolve(data);
+
+            })
+            // If failed, reject the promise.
+            .catch((err) => {
+
+                console.log("getDepartments(): Failed retrieve all departments");
+                reject("Failed to retrieve departments");
+
+            }); // Employee.findAll()
+
+   }); // return new Promise()
 
 } // getDepartments()
 
@@ -275,19 +289,33 @@ module.exports.addEmployee = function (emp_data){
     // Set up a new promise to add the new employee
     return new Promise( function(resolve, reject){
 
-        // If isManager is undefined, set it to false
-        if(emp_data.isManager === undefined)
-            emp_data.isManager = false;
+        // Iterate through the received data and replace empty fields with null.
+        for(x in emp_data)
+            x = (x == "") ? null : x ;
         
-        // Set the employee number to be equal to the amount of employees + 1
-        emp_data.employeeNum = employees.length + 1;
+        // Validate the isManager field to avoid error.
+        // If it is not valid, set it to false. Otherwise, use the received value.
+        emp_data.isManager = (emp_data.isManager) ? true : false;
 
-        // Add the employee into the array
-        employees.push(emp_data);
+        // Attempt to insert the new employee in the database
+        Employee
+            .create(emp_data)
+            // If successfull, resolve the promise.
+            .then((data) => {
 
-        resolve();
+                console.log("addEmployee(): Created employee successfully");
+                resolve("Created employee successfully");
 
-    } ); // return new Promise()
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+
+                console.log("addEmployee(): Failed to create employee");
+                resolve("Failed to create employee");
+
+            }); 
+
+    }); // return new Promise()
 
 } // addEmployee()
 
@@ -297,22 +325,8 @@ module.exports.updateEmployee = function (emp_data){
     // Set up a new promise to update the employee's data
     return new Promise( function(resolve, reject){
 
-        // If isManager is undefined, set it to false
-        if(emp_data.isManager === undefined)
-            emp_data.isManager = false;
+        reject();
 
-        // Itterate through the employees array looking for a match for the employee number
-        // If found, replace the object with the one received from the form
-        for(var x = 0; x < employees.length; x++){
-            if(employees[x].employeeNum == emp_data.employeeNum)
-                employees[x] = emp_data;
-        } // for()
-        
-        // Conclude the function and resolve the promise.
-        resolve();
-
-    } ); // return new Promise()
+    }); // return new Promise()
 
 } // updateEmployee()
-
-// initialize().then(() => { getManagers() });

@@ -120,6 +120,7 @@ app.get("/employees", (req, res) => {
 
         }).catch((err) => { 
         
+            console.log(err);
             // If an error is thrown, display an error message
             res.render({message: "No Results For All Employees"});
 
