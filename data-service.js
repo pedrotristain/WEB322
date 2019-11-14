@@ -322,10 +322,36 @@ module.exports.addEmployee = function (emp_data){
 // Add new Employee
 module.exports.updateEmployee = function (emp_data){
 
-    // Set up a new promise to update the employee's data
+    // Set up a new promise to update the received employee
     return new Promise( function(resolve, reject){
 
-        reject();
+        // Iterate through the received data and replace empty fields with null.
+        for(x in emp_data)
+            x = (x == "") ? null : x ;
+        
+        // Validate the isManager field to avoid error.
+        // If it is not valid, set it to false. Otherwise, use the received value.
+        emp_data.isManager = (emp_data.isManager) ? true : false;
+
+        // Attempt to update the employee with the new data
+        Employee
+            .update(emp_data, {
+                where : { employeeNum : emp_data.employeeNum }
+            })
+            // If successfull, resolve the promise.
+            .then((data) => {
+
+                console.log("updateEmployee(): Updated employee successfully");
+                resolve("Updated employee successfully");
+
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+
+                console.log("updateEmployee(): Failed to update employee");
+                resolve("Failed to update employee");
+
+            }); 
 
     }); // return new Promise()
 
