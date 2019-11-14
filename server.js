@@ -71,9 +71,11 @@ app.use(function(req,res,next){
     next();
 });
 
-/* ----------- Aditional Routes ----------- */
 
-/* -----------  GET Routes  ------------ */
+// ----------------------------------------
+//             Default GET Routes
+// ----------------------------------------
+
 
 // Home
 app.get("/", (req, res) => {
@@ -85,11 +87,11 @@ app.get("/about", (req, res) => {
     res.render('about');
 });
 
-function displayEmployees(data, res) {
-    res.json(data);
-}
 
-// Employees
+// ----------------------------------------
+//          Employees GET Routes
+// ----------------------------------------
+
 app.get("/employees", (req, res) => {
     
     // If quer.statyus, fetch employees by status
@@ -163,76 +165,33 @@ app.get("/employee/:num", (req, res) => {
 
     data_serv.getEmployeeByNum(req.params.num).then((data) => {
 
-        res.render('employee', { employee: data[0] });
+        // If any employee was found, display it
+        if(data.length > 0)
+            res.render('employee', { employee: data[0] });
+        // Otherwise, display the 404 page
+        else
+            res.status(404).render('404', { title : 'Employee Not Found', message : 'The employee you tried to reach is unavailable at the moment. Try again later'});
 
     })
     .catch((err => {
 
         // If an error is thrown, display an error message.
-        res.render({message: "No Employee Found"});
+        res.status(404).render('404', { title : 'Error when retrieving Employee', message : 'The employee you tried to reach is unavailable at the moment. Try again later'});
 
     })); // data_serv.getEmployeeByNum()
 
 }); // app.get("/employees/:num")
-
-// Departments
-app.get("/departments", (req, res) => {
-    
-    // Attempt to get all departments.
-    data_serv.getDepartments().then((data) => {
-
-        // If any department was retrieved, display them
-        if(data.length > 0)
-            res.render('departments', { departments: data });
-        // Otherwise, display a message that no departments could be retrieved
-        else
-            res.render('departments', { message : 'No departments could be found.'});
-
-    }).catch((err) => { 
-    
-        // If an error is thrown, display an error message.
-        res.render("departments", {message: "No Departments Found"});
-
-    }); //data_serv.getDepartments()
-
-}); // app.get("/departments")
-
-// Images
-app.get("/images", (req, res) => {
-    
-    var _path = "./public/images/uploaded";
-    var data = { "images" : [] };
-
-    // Read the files in the images/uploaded folder
-    fs.readdir(_path, function(err, items) {
-
-        data.images = items;
-
-        // Reply with the json object
-        res.render('images', data);
-
-    }); // fs.readdir()
-    
-}); // app.get("/images")
 
 // Add Employees
 app.get("/employees/add", (req, res) => {
     res.render('addEmployee');
 });
 
-// Add Images
-app.get("/images/add", (req, res) => {
-    res.render('addImage');
-});
 
-/* -----------  POST Routes  ----------- */
+// ----------------------------------------
+//            Employees POST Routes
+// ----------------------------------------
 
-// Image Add
-app.post("/images/add", upload.single("imageFile"), (req, res) => {
-    
-    res.redirect("/images");
-
-});
 
 // Employee Add
 app.post("/employees/add", (req, res) => {
@@ -256,14 +215,160 @@ app.post("/employee/update", (req, res) => {
 
 });
 
-/* -----------  Miscellaneous  ------------ */
+
+// ----------------------------------------
+//          Departments GET Routes
+// ----------------------------------------
+
+
+app.get("/departments", (req, res) => {
+    
+    // Attempt to get all departments.
+    data_serv.getDepartments().then((data) => {
+
+        // If any department was retrieved, display them
+        if(data.length > 0)
+            res.render('departments', { departments: data });
+        // Otherwise, display a message that no departments could be retrieved
+        else
+            res.render('departments', { message : 'No departments could be found.'});
+
+    }).catch((err) => { 
+    
+        // If an error is thrown, display an error message.
+        res.render("departments", {message: "No Departments Found"});
+
+    }); //data_serv.getDepartments()
+
+}); // app.get("/departments")
+
+app.get("/department/:id", (req, res) => {
+
+    data_serv.getDepartmentById(req.params.id).then((data) => {
+
+        // If any department is found, display it
+        if(data.length > 0)
+            res.render('department', { department: data[0] });
+        // Otherwise, display the 404 page
+        else
+            res.status(404).render('404', { title : 'Department Not Found', message : 'The department you tried to reach is unavailable at the moment. Try again later'});
+
+    })
+    .catch((err => {
+
+        // If an error is thrown, display an error message.
+        res.status(404).render('404', { title : 'Error when retrieving Department', message : 'The department you tried to reach is unavailable at the moment. Try again later'});
+
+    })); // data_serv.getEmployeeByNum()
+
+}); // app.get("/department/:num")
+
+// Add Department
+app.get("/departments/add", (req, res) => {
+    res.render('addDepartment');
+});
+
+// Delete Department
+app.get("/departments/delete/:id", (req, res) => {
+    
+    data_serv.deleteDepartmentById(req.params.id).then(() => {
+
+        res.redirect("/departments");
+
+    })
+    .catch((err) => {
+
+        res.status(500).send("Unable to Remove Department / Department not found");
+
+    }); // data_serv.deleteDepartmentById()
+
+});
+
+
+// ----------------------------------------
+//            Department POST Routes
+// ----------------------------------------
+
+
+// Department Add
+app.post("/departments/add", (req, res) => {
+
+    data_serv.addDepartment(req.body).then((data) => {
+    
+        res.redirect("/departments");
+
+    }); // addDepartment(req.body)
+
+});
+
+// Department Update
+app.post("/departments/update", (req, res) => {
+
+    data_serv.updateDepartment(req.body).then((data) => {
+
+        res.redirect("/departments");
+
+    }); // updateDepartment()
+
+});
+
+
+// ----------------------------------------
+//            Images GET Routes
+// ----------------------------------------
+
+
+app.get("/images", (req, res) => {
+    
+    var _path = "./public/images/uploaded";
+    var data = { "images" : [] };
+
+    // Read the files in the images/uploaded folder
+    fs.readdir(_path, function(err, items) {
+
+        data.images = items;
+
+        // Reply with the json object
+        res.render('images', data);
+
+    }); // fs.readdir()
+    
+}); // app.get("/images")
+
+// Add Images
+app.get("/images/add", (req, res) => {
+    res.render('addImage');
+});
+
+
+// ----------------------------------------
+//            Images POST Routes
+// ----------------------------------------
+
+
+// Image Add
+app.post("/images/add", upload.single("imageFile"), (req, res) => {
+    
+    res.redirect("/images");
+
+});
+
+
+
+// ----------------------------------------
+//         Miscellaneous GET Routes
+// ----------------------------------------
+
 
 // Page Not Found (Error 404)
 app.get("*", (req, res) => {
     res.status(404).render('404');
 });
 
-/* ---------------------------------------- */
+
+// ----------------------------------------
+// ----------------------------------------
+
 
 // setup http server to listen on HTTP_PORT
 // Only after the initialize function has been resolved.

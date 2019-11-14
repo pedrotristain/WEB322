@@ -356,37 +356,37 @@ module.exports.getDepartments = function (){
 
 } // getDepartments()
 
-// Get departments by their ID
-module.exports.getDepartmentsById = function (dept_data){
+// Get a department by their ID
+module.exports.getDepartmentById = function (dept_id){
 
-    // Set up a new promise to retrieve departments by their ID.
+    // Set up a new promise to retrieve a department by their ID.
     return new Promise( function(resolve, reject){
 
-        // Attempt to retrieve the departments by their ID.
+        // Attempt to retrieve the department by their ID.
         Department
             .findAll({
                 where : {
-                    departmentId : dept_data.departmentId
+                    departmentId : dept_id
                 }
             })
             // If successful, resolve the promise and return the found data.
             .then((data) => {
 
-                console.log("getDepartmentsById(): Retrieved departments successfully");
+                console.log("getDepartmentsById(): Retrieved department successfully");
                 resolve(data);
 
             })
             // If failed, reject the promise.
             .catch((err) => {
 
-                console.log("getDepartmentsById(): Failed retrieve all departments");
-                reject("Failed to retrieve departments");
+                console.log("getDepartmentsById(): Failed to retrieve the department");
+                reject("Failed to retrieve the department");
 
             }); // Department.findAll()
 
     }); // return new Promise()
 
-} // getDepartmentsById()
+} // getDepartmentById()
 
 // Add new Department
 module.exports.addDepartment = function (dept_data){
@@ -421,7 +421,7 @@ module.exports.addDepartment = function (dept_data){
 } // addDepartment()
 
 // Update Department
-module.exports.updateDepartment = function (){
+module.exports.updateDepartment = function (dept_data){
     
     // Set up a new promise to update the received department
     return new Promise( function(resolve, reject){
