@@ -181,8 +181,12 @@ app.get("/departments", (req, res) => {
     // Attempt to get all departments.
     data_serv.getDepartments().then((data) => {
 
-        // If successfull, display them.
-        res.render("departments", {departments: data});
+        // If any department was retrieved, display them
+        if(data.length > 0)
+            res.render('departments', { departments: data });
+        // Otherwise, display a message that no departments could be retrieved
+        else
+            res.render('departments', { message : 'No departments could be found.'});
 
     }).catch((err) => { 
     
