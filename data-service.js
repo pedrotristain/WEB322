@@ -86,6 +86,12 @@ module.exports.initialize = function (){
 
 }; // function initialize()
 
+
+// ----------------------------------------------------------------------------------
+// Employee CRUD
+// ----------------------------------------------------------------------------------
+
+
 // Get all the employees
 module.exports.getAllEmployees = function (){
 
@@ -242,6 +248,86 @@ module.exports.getEmployeeByNum = function(_par) {
 
 } // getEmployeeByNum()
 
+// Add new Employee
+module.exports.addEmployee = function (emp_data){
+    
+    // Set up a new promise to add the new employee
+    return new Promise( function(resolve, reject){
+        
+        // Iterate through the received data and replace empty fields with null.
+        for(x in emp_data)
+        x = (x == "") ? null : x ;
+        
+        // Validate the isManager field to avoid error.
+        // If it is not valid, set it to false. Otherwise, use the received value.
+        emp_data.isManager = (emp_data.isManager) ? true : false;
+        
+        // Attempt to insert the new employee in the database
+        Employee
+            .create(emp_data)
+            // If successfull, resolve the promise.
+            .then((data) => {
+                
+                console.log("addEmployee(): Created employee successfully");
+                resolve("Created employee successfully");
+                
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+                
+                console.log("addEmployee(): Failed to create employee");
+                resolve("Failed to create employee");
+                
+            }); // Employee.create()
+        
+    }); // return new Promise()
+    
+} // addEmployee()
+
+// Update Employee
+module.exports.updateEmployee = function (emp_data){
+    
+    // Set up a new promise to update the received employee
+    return new Promise( function(resolve, reject){
+        
+        // Iterate through the received data and replace empty fields with null.
+        for(x in emp_data)
+        x = (x == "") ? null : x ;
+        
+        // Validate the isManager field to avoid error.
+        // If it is not valid, set it to false. Otherwise, use the received value.
+        emp_data.isManager = (emp_data.isManager) ? true : false;
+        
+        // Attempt to update the employee with the new data
+        Employee
+            .update(emp_data, {
+                where : { employeeNum : emp_data.employeeNum }
+            })
+            // If successfull, resolve the promise.
+            .then((data) => {
+                
+                console.log("updateEmployee(): Updated employee successfully");
+                resolve("Updated employee successfully");
+                
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+                
+                console.log("updateEmployee(): Failed to update employee");
+                resolve("Failed to update employee");
+                
+            }); // Employee.update()
+        
+    }); // return new Promise()
+
+} // updateEmployee()
+    
+
+// ----------------------------------------------------------------------------------
+// Department CRUD
+// ----------------------------------------------------------------------------------
+
+
 // Get all the departments
 module.exports.getDepartments = function (){
 
@@ -266,80 +352,134 @@ module.exports.getDepartments = function (){
 
             }); // Employee.findAll()
 
-   }); // return new Promise()
+    }); // return new Promise()
 
 } // getDepartments()
 
-// Add new Employee
-module.exports.addEmployee = function (emp_data){
+// Get departments by their ID
+module.exports.getDepartmentsById = function (dept_data){
 
-    // Set up a new promise to add the new employee
+    // Set up a new promise to retrieve departments by their ID.
     return new Promise( function(resolve, reject){
 
-        // Iterate through the received data and replace empty fields with null.
-        for(x in emp_data)
-            x = (x == "") ? null : x ;
-        
-        // Validate the isManager field to avoid error.
-        // If it is not valid, set it to false. Otherwise, use the received value.
-        emp_data.isManager = (emp_data.isManager) ? true : false;
-
-        // Attempt to insert the new employee in the database
-        Employee
-            .create(emp_data)
-            // If successfull, resolve the promise.
+        // Attempt to retrieve the departments by their ID.
+        Department
+            .findAll({
+                where : {
+                    departmentId : dept_data.departmentId
+                }
+            })
+            // If successful, resolve the promise and return the found data.
             .then((data) => {
 
-                console.log("addEmployee(): Created employee successfully");
-                resolve("Created employee successfully");
+                console.log("getDepartmentsById(): Retrieved departments successfully");
+                resolve(data);
 
             })
-            // If failed, reject the promise with an error message.
+            // If failed, reject the promise.
             .catch((err) => {
 
-                console.log("addEmployee(): Failed to create employee");
-                resolve("Failed to create employee");
+                console.log("getDepartmentsById(): Failed retrieve all departments");
+                reject("Failed to retrieve departments");
 
-            }); 
+            }); // Department.findAll()
 
     }); // return new Promise()
 
-} // addEmployee()
+} // getDepartmentsById()
 
-// Add new Employee
-module.exports.updateEmployee = function (emp_data){
-
-    // Set up a new promise to update the received employee
+// Add new Department
+module.exports.addDepartment = function (dept_data){
+    
+    // Set up a new promise to add the new department
     return new Promise( function(resolve, reject){
-
+        
         // Iterate through the received data and replace empty fields with null.
-        for(x in emp_data)
+        for(x in dept_data)
             x = (x == "") ? null : x ;
         
-        // Validate the isManager field to avoid error.
-        // If it is not valid, set it to false. Otherwise, use the received value.
-        emp_data.isManager = (emp_data.isManager) ? true : false;
-
-        // Attempt to update the employee with the new data
-        Employee
-            .update(emp_data, {
-                where : { employeeNum : emp_data.employeeNum }
-            })
+        // Attempt to insert the new department in the database
+        Department
+            .create(dept_data)
             // If successfull, resolve the promise.
             .then((data) => {
-
-                console.log("updateEmployee(): Updated employee successfully");
-                resolve("Updated employee successfully");
-
+                
+                console.log("addDepartment(): Created department successfully");
+                resolve("Created department successfully");
+                
             })
             // If failed, reject the promise with an error message.
             .catch((err) => {
+                
+                console.log("addDepartment(): Failed to create department");
+                resolve("Failed to create department");
+                
+            }); // Department.create()
+        
+    }); // return new Promise()
+    
+} // addDepartment()
 
-                console.log("updateEmployee(): Failed to update employee");
-                resolve("Failed to update employee");
-
-            }); 
-
+// Update Department
+module.exports.updateDepartment = function (){
+    
+    // Set up a new promise to update the received department
+    return new Promise( function(resolve, reject){
+        
+        // Iterate through the received data and replace empty fields with null.
+        for(x in dept_data)
+            x = (x == "") ? null : x ;
+        
+        // Attempt to update the department with the new data
+        Department
+            .update(dept_data, {
+                where : { departmentId : dept_data.departmentId }
+            })
+            // If successfull, resolve the promise.
+            .then((data) => {
+                
+                console.log("updateDepartment(): Updated department successfully");
+                resolve("Updated department successfully");
+                
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+                
+                console.log("updateDepartment(): Failed to update department");
+                resolve("Failed to update department");
+                
+            }); // Department.update()
+        
     }); // return new Promise()
 
-} // updateEmployee()
+} // updateDepartment()
+
+// Delete Department by ID
+module.exports.deleteDepartmentById = function (dept_id){
+    
+    // Set up a new promise to delete the received department
+    return new Promise( function(resolve, reject){
+        
+        // Attempt to delete the department
+        Department
+            .destroy({
+                where : { departmentId : dept_id }
+            })
+            // If successfull, resolve the promise.
+            .then((data) => {
+                
+                console.log("deleteDepartmentById(): Deleted department successfully");
+                resolve("Deleted department successfully");
+                
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+                
+                console.log("deleteDepartmentById(): Failed to delete department");
+                resolve("Failed to delete department");
+                
+            }); // Department.destroy()
+        
+    }); // return new Promise()
+
+} // deleteDepartmentById()
