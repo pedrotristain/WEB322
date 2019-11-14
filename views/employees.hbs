@@ -13,6 +13,7 @@
 
         {{/unless}}
 
+        {{#if employees}}
         <div class="table-responsive">
 
             <table class="table">
@@ -26,7 +27,6 @@
                     <th>Department</th>
                     <th>Hired On</th>
                 </tr>
-            
             {{#each employees}}
 
                 <tr>
@@ -51,12 +51,12 @@
                     </td>
                     <td>{{hireDate}}</td>
                 </tr>
-            
             {{/each}}
 
             </table>
 
         </div>
+        {{/if}}
 
     </div>
 
