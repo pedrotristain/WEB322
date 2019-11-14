@@ -242,19 +242,6 @@ module.exports.getEmployeeByNum = function(_par) {
 
 } // getEmployeeByNum()
 
-// // Get only the employees that are managers
-// // var getManagers = function() {
-// module.exports.getManagers = function (){
-
-//     // Set up a new promise to iterate through the employees object in search of the managers.
-//     return new Promise( function(resolve, reject){
-
-//         reject();
-        
-//     }); // return new Promise()
-
-// } // getManagers()
-
 // Get all the departments
 module.exports.getDepartments = function (){
 

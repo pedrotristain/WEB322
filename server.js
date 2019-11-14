@@ -95,19 +95,46 @@ app.get("/employees", (req, res) => {
     // If quer.statyus, fetch employees by status
     if(req.query.status)
         data_serv.getEmployeesByStatus(req.query.status)
-            .then((data) => { res.render('employees', { employees: data }); })
+            .then((data) => {
+                    
+                // If any employee was retrieved, display them
+                if(data.length > 0)
+                    res.render('employees', { employees: data });
+                // Otherwise, display a message that no employees could be retrieved
+                else
+                    res.render('employees', { message : 'No employees could be found.'});
+
+            })
             .catch((err) => { res.render({message: "No Results For Employees By Status"}); });
 
     // Else, if query.department, fetch employee by department number
     else if(req.query.department)
         data_serv.getEmployeesByDepartment(req.query.department)
-            .then((data) => { res.render('employees', { employees: data }); })
+            .then((data) => {
+
+                // If any employee was retrieved, display them
+                if(data.length > 0)
+                    res.render('employees', { employees: data });
+                // Otherwise, display a message that no employees could be retrieved
+                else
+                    res.render('employees', { message : 'No employees could be found.'});
+
+            })
             .catch((err) => { res.render({message: "No Results For Employees By Department"}); });
     
     // Else, if query.manager, fetch employee by manager number
     else if(req.query.manager)
         data_serv.getEmployeesByManager(req.query.manager)
-            .then((data) => { res.render('employees', { employees: data }); })
+            .then((data) => {
+
+                // If any employee was retrieved, display them
+                if(data.length > 0)
+                    res.render('employees', { employees: data });
+                // Otherwise, display a message that no employees could be retrieved
+                else
+                    res.render('employees', { message : 'No employees could be found.'});
+        
+            })
             .catch((err) => { res.render({message: "No Results For Employees By Manager"}); });
 
     // Else, fetch all employees
@@ -115,14 +142,18 @@ app.get("/employees", (req, res) => {
         // Attempt to get all the employees.
         data_serv.getAllEmployees().then((data) => {
 
-            // If successfull, display them
-            res.render('employees', { employees: data });
+            // If any employee was retrieved, display them
+            if(data.length > 0)
+                res.render('employees', { employees: data });
+            // Otherwise, display a message that no employees could be retrieved
+            else
+                res.render('employees', { message : 'No employees could be found.'});
 
         }).catch((err) => { 
         
             console.log(err);
             // If an error is thrown, display an error message
-            res.render({message: "No Results For All Employees"});
+            res.render({message: "There was an error when attempting to retrieve the employees."});
 
         }); //data_serv.getAllEmployees()
 
