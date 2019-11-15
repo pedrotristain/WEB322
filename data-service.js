@@ -255,8 +255,9 @@ module.exports.addEmployee = function (emp_data){
     return new Promise( function(resolve, reject){
         
         // Iterate through the received data and replace empty fields with null.
-        for(x in emp_data)
-        x = (x == "") ? null : x ;
+        for(field in emp_data){
+            emp_data[field] = (emp_data[field] == "") ? null : emp_data[field] ;
+        }
         
         // Validate the isManager field to avoid error.
         // If it is not valid, set it to false. Otherwise, use the received value.
@@ -277,6 +278,7 @@ module.exports.addEmployee = function (emp_data){
                 
                 console.log("addEmployee(): Failed to create employee");
                 resolve("Failed to create employee");
+                // console.log(err);
                 
             }); // Employee.create()
         
@@ -291,8 +293,9 @@ module.exports.updateEmployee = function (emp_data){
     return new Promise( function(resolve, reject){
         
         // Iterate through the received data and replace empty fields with null.
-        for(x in emp_data)
-        x = (x == "") ? null : x ;
+        for(field in emp_data){
+            emp_data[field] = (emp_data[field] == "") ? null : emp_data[field] ;
+        }
         
         // Validate the isManager field to avoid error.
         // If it is not valid, set it to false. Otherwise, use the received value.
@@ -321,7 +324,37 @@ module.exports.updateEmployee = function (emp_data){
     }); // return new Promise()
 
 } // updateEmployee()
+
+// Delete Employee by Num
+module.exports.deleteEmployeeByNum = function (emp_num){
     
+    // Set up a new promise to delete the received employee
+    return new Promise( function(resolve, reject){
+        
+        // Attempt to delete the employee
+        Employee
+            .destroy({
+                where : { employeeNum : emp_num }
+            })
+            // If successfull, resolve the promise.
+            .then((data) => {
+                
+                console.log("deleteEmployeeByNum(): Deleted employee successfully");
+                resolve("Deleted employee successfully");
+                
+            })
+            // If failed, reject the promise with an error message.
+            .catch((err) => {
+                
+                console.log("deleteEmployeeByNum(): Failed to delete employee");
+                resolve("Failed to delete employee");
+                
+            }); // Employee.destroy()
+        
+    }); // return new Promise()
+
+} // deleteEmployeeByNum()
+
 
 // ----------------------------------------------------------------------------------
 // Department CRUD

@@ -3,7 +3,7 @@
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Pedro Zelada Souza Student ID: 116427188 Date: 01-11-2019
+*  Name: Pedro Zelada Souza Student ID: 116427188 Date: 14-11-2019
 *
 *  Online (Heroku) Link: https://pzelada-souza-web322.herokuapp.com/
 *
@@ -163,28 +163,83 @@ app.get("/employees", (req, res) => {
 
 app.get("/employee/:num", (req, res) => {
 
+    // initialize a temporary empty object to store the values
+    let viewData = { employee : null, departments : [] };
+
     data_serv.getEmployeeByNum(req.params.num).then((data) => {
 
-        // If any employee was found, display it
+        // If any employee was found, add it to the temporary object
         if(data.length > 0)
-            res.render('employee', { employee: data[0] });
-        // Otherwise, display the 404 page
+            viewData.employee = data[0];
         else
-            res.status(404).render('404', { title : 'Employee Not Found', message : 'The employee you tried to reach is unavailable at the moment. Try again later'});
+            viewData.employee = null;
 
     })
-    .catch((err => {
+    .catch((err) => {
 
-        // If an error is thrown, display an error message.
-        res.status(404).render('404', { title : 'Error when retrieving Employee', message : 'The employee you tried to reach is unavailable at the moment. Try again later'});
+        viewData.employee = null;
 
-    })); // data_serv.getEmployeeByNum()
+    })
+    .then(data_serv.getDepartments)
+        .then((data) =>{
+            viewData.departments = data;
+
+            // Iterate through the departments array and look for the same department as the employee's
+            // Set it's attribute 'selected' to true if found.
+            for(let x = 0; x < viewData.departments.length; x++)
+                if(viewData.departments[x].departmentId == viewData.employee.department)
+                    viewData.departments[x].selected = true;
+            
+        })
+        .catch((err) => {
+            viewData.departments = [];
+            console.log("data_serv.getDepartments() : Failed")
+        })
+    .catch((err) => { res.status(500).send("Failed when retrieving departments.") })
+    .then(() => {
+
+        // if no employee - return an error
+        if (viewData.employee == null) { 
+            res.status(404).render("404", { title : 'Employee Not Found', message : 'The department you tried to reach is unavailable at the moment. Try again later'});
+        } else {
+            res.render("employee", { viewData : viewData }); // render the "employee" view
+        }
+
+    })
+    .catch((err) => { res.status(500).send("Failed when rendering employee view.") }); // data_serv.getEmployeeByNum()
 
 }); // app.get("/employees/:num")
 
 // Add Employees
 app.get("/employees/add", (req, res) => {
-    res.render('addEmployee');
+    
+    data_serv.getDepartments().then((data) => {
+
+        res.render('addEmployee', { departments : data });
+
+    })
+    .catch((err) => {
+
+        res.render('addEmployee', { departments : [] });
+
+    });
+
+}); // app.get("/employees/add")
+
+// Delete Employee
+app.get("/employees/delete/:emp_num", (req, res) => {
+    
+    data_serv.deleteEmployeeByNum(req.params.emp_num).then(() => {
+
+        res.redirect("/employees");
+
+    })
+    .catch((err) => {
+
+        res.status(500).send("Unable to Remove Employee / Employee not found");
+
+    }); // data_serv.deleteEmployeeByNum()
+
 });
 
 
@@ -200,7 +255,8 @@ app.post("/employees/add", (req, res) => {
     
         res.redirect("/employees");
 
-    }); // addEmployee(req.body)
+    })
+    .catch((err) => { res.status(500).send("Failed when adding employee.") }); // addEmployee(req.body)
 
 });
 
@@ -211,7 +267,8 @@ app.post("/employee/update", (req, res) => {
 
         res.redirect("/employees");
 
-    }); // updateEmployee()
+    })
+    .catch((err) => { res.status(500).send("Failed when updating employee.") }); // updateEmployee()
 
 });
 
@@ -254,12 +311,12 @@ app.get("/department/:id", (req, res) => {
             res.status(404).render('404', { title : 'Department Not Found', message : 'The department you tried to reach is unavailable at the moment. Try again later'});
 
     })
-    .catch((err => {
+    .catch((err) => {
 
         // If an error is thrown, display an error message.
         res.status(404).render('404', { title : 'Error when retrieving Department', message : 'The department you tried to reach is unavailable at the moment. Try again later'});
 
-    })); // data_serv.getEmployeeByNum()
+    }); // data_serv.getEmployeeByNum()
 
 }); // app.get("/department/:num")
 
@@ -297,7 +354,8 @@ app.post("/departments/add", (req, res) => {
     
         res.redirect("/departments");
 
-    }); // addDepartment(req.body)
+    })
+    .catch((err) => { res.status(500).send("Failed when adding department.") }); // addDepartment(req.body)
 
 });
 
@@ -308,7 +366,8 @@ app.post("/departments/update", (req, res) => {
 
         res.redirect("/departments");
 
-    }); // updateDepartment()
+    })
+    .catch((err) => { res.status(500).send("Failed when updating department.") }); // updateDepartment()
 
 });
 
