@@ -1,3 +1,6 @@
+// Set up bcryptjs
+const bcrypt = require('bcryptjs');
+
 // Set up mongoose and Schema
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
@@ -50,27 +53,50 @@ module.exports.registerUser = function(userData){
         // If passwords match, create new user
         let newUser = new User(userData);
 
-        // Attempt to save the new user on the database
-        newUser.save((err) => {
-            
-            // If there was an error, reject the promise with according message.
-            if(err){
+        // Generate a "salt" using 10 rounds
+        bcrypt.genSalt(10, function(err, salt) { 
 
-                // Check if the error was duplicate key. If TRUE, reject promise with USER TAKEN message.
-                if(err.code == 11000)
-                    reject("User Name already taken");
+            // Encrypt user password.
+            bcrypt.hash(newUser.password, salt, function(err, hash) { 
+
+                // If it failed for any reason, reject the promise with error message
+                if(err)
+                    reject("There was an error encrypting the password");
                 
-                // If not duplicate key, reject the promise with according error message.
-                else
-                    reject("There was an error creating the user: " + err);
+                // Otherwise, store the user data in the database
+                else {
 
-            } // if(err)
+                    // Set the user password to the encrypted version
+                    newUser.password = hash;
+                    newUser.password2 = hash;
+
+                    // Attempt to save the new user on the database
+                    newUser.save((err) => {
+                        
+                        // If there was an error, reject the promise with according message.
+                        if(err){
             
-            // If there was no error, resolve the promise with no message
-            else
-                resolve();
+                            // Check if the error was duplicate key. If TRUE, reject promise with USER TAKEN message.
+                            if(err.code == 11000)
+                                reject("User Name already taken");
+                            
+                            // If not duplicate key, reject the promise with according error message.
+                            else
+                                reject("There was an error creating the user: " + err);
+            
+                        } // if(err)
+                        
+                        // If there was no error, resolve the promise with no message
+                        else
+                            resolve();
+            
+                    }); // newUser.save()
 
-        }); // newUser.save()
+                } // else
+
+            }); // bcrypt.hash()
+
+        }); // bcrypt.genSalt()
 
     }); // return new Promise()
 
@@ -92,38 +118,48 @@ module.exports.checkUser = function(userData) {
                 reject("Unable to find user: " + userData.userName);
             
             // If an user was found, check if the password matches the received one. If not, reject the promise with PASSWORD MISMATCH message.
-            else if(user[0].password != userData.password)
-                reject("Incorrect Password for user: " + userData.userName); // Just so you know: this error message is insecure as it tells that your login is correct.
-            
-            // If the user was found and the password matches, resolve the promise.
-            else {
+            else{
 
-                // Push the new login into the login history
-                user[0].loginHistory.push({ 
-                    dateTime : new Date().toString(),
-                    userAgent : userData.userAgent
-                }); // push()
+                console.log('%c' + userData.password, 'color:orange');
+                console.log('%c' + user[0].password, 'color:cyan');
 
-                // User.updateOne('')
-                // Update the database with the new login history
-                User.update(
-                    { userName : userData.userName },
-                    { $set : { loginHistory : user[0].loginHistory }}
-                ).exec()
+                // Compare the received password with the encrypted password in the database
+                bcrypt.compare(userData.password, user[0].password)
                 
-                // If the update was successful, resolve the promise and return the found user 
-                .then(() => {
+                // If the comparison succeeded, check if the passwords match
+                .then((res) => {
+                    
+                    // If the passwords do not match, reject the promise with an error message and leave the function
+                    if(res === fail)
+                        reject("Incorrect Password for user: " + userData.userName);
 
-                    resolve(user[0]);
+                    // Push the new login into the login history
+                    user[0].loginHistory.push({ 
+                        dateTime : new Date().toString(),
+                        userAgent : userData.userAgent
+                    }); // push()
+        
+                    // Update the database with the new login history
+                    User.updateOne(
+                        { userName : userData.userName },
+                        { $set : { loginHistory : user[0].loginHistory }}
+                    ).exec()
+                    
+                    // If the update was successful, resolve the promise and return the found user 
+                    .then(() => { resolve(user[0]); })
+        
+                    // Otherwise, reject the promise with an error message
+                    .catch((err) => {
+                        reject("There was an error verifying the user: " + err);
+                    }); // update()
 
-                })
-
-                // Otherwise, reject the promise with an error message
+                }) // then()
+                
+                // If the comparison fail, reject the promise with an error message
                 .catch((err) => {
-
-                    reject("There was an error verifying the user: " + err);
-
-                }); // update()
+                    reject("There was an error when attempting to log in: " + err); 
+                    // Just so you know: this error message is insecure as it tells that your login is correct.
+                });
 
             } // else
 
@@ -131,9 +167,7 @@ module.exports.checkUser = function(userData) {
 
         // If find() failed, reject the promise with an error message
         .catch((err) => {
-
             reject("Unable to find user: " + userData.userName);
-
         }); // catch()
     
     }); // Promise()
