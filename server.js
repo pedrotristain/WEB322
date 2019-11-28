@@ -12,15 +12,17 @@
 
 
 var HTTP_PORT = process.env.PORT || 8080;
-var express = require("express");
+var express = require('express');
 var app = express();
 
-const path = require("path");
-const multer = require("multer");
-const fs = require("fs");
-const bodyParser = require("body-parser");
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const bodyParser = require('body-parser');
 const exphbs = require('express-handlebars');
-const clientSessions = require('client-sessions')
+const clientSessions = require('client-sessions');
+const data_serv = require('./data-service');
+const dataServiceAuth = require('./data-service-auth');
 
 // Upload set up
 const storage = multer.diskStorage({
@@ -63,9 +65,6 @@ app.use(express.static('public'));
 
 // setup the middleware body parser
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Set up control module
-var data_serv = require("./data-service");
 
 // Navbar fix for active link
 app.use(function(req,res,next){
