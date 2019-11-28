@@ -50,53 +50,57 @@ module.exports.registerUser = function(userData){
         if(userData.password != userData.password2)
             reject("Passwords do not match");
         
-        // If passwords match, create new user
-        let newUser = new User(userData);
+        else {
 
-        // Generate a "salt" using 10 rounds
-        bcrypt.genSalt(10, function(err, salt) { 
+            // If passwords match, create new user
+            let newUser = new User(userData);
 
-            // Encrypt user password.
-            bcrypt.hash(newUser.password, salt, function(err, hash) { 
+            // Generate a "salt" using 10 rounds
+            bcrypt.genSalt(10, function(err, salt) { 
 
-                // If it failed for any reason, reject the promise with error message
-                if(err)
-                    reject("There was an error encrypting the password");
-                
-                // Otherwise, store the user data in the database
-                else {
+                // Encrypt user password.
+                bcrypt.hash(newUser.password, salt, function(err, hash) { 
 
-                    // Set the user password to the encrypted version
-                    newUser.password = hash;
-                    newUser.password2 = hash;
+                    // If it failed for any reason, reject the promise with error message
+                    if(err)
+                        reject("There was an error encrypting the password");
+                    
+                    // Otherwise, store the user data in the database
+                    else {
 
-                    // Attempt to save the new user on the database
-                    newUser.save((err) => {
-                        
-                        // If there was an error, reject the promise with according message.
-                        if(err){
-            
-                            // Check if the error was duplicate key. If TRUE, reject promise with USER TAKEN message.
-                            if(err.code == 11000)
-                                reject("User Name already taken");
+                        // Set the user password to the encrypted version
+                        newUser.password = hash;
+                        newUser.password2 = hash;
+
+                        // Attempt to save the new user on the database
+                        newUser.save((err) => {
                             
-                            // If not duplicate key, reject the promise with according error message.
+                            // If there was an error, reject the promise with according message.
+                            if(err){
+                
+                                // Check if the error was duplicate key. If TRUE, reject promise with USER TAKEN message.
+                                if(err.code == 11000)
+                                    reject("User Name already taken");
+                                
+                                // If not duplicate key, reject the promise with according error message.
+                                else
+                                    reject("There was an error creating the user: " + err);
+                
+                            } // if(err)
+                            
+                            // If there was no error, resolve the promise with no message
                             else
-                                reject("There was an error creating the user: " + err);
-            
-                        } // if(err)
-                        
-                        // If there was no error, resolve the promise with no message
-                        else
-                            resolve();
-            
-                    }); // newUser.save()
+                                resolve();
+                
+                        }); // newUser.save()
 
-                } // else
+                    } // else
 
-            }); // bcrypt.hash()
+                }); // bcrypt.hash()
 
-        }); // bcrypt.genSalt()
+            }); // bcrypt.genSalt()
+
+        } // else
 
     }); // return new Promise()
 
@@ -120,9 +124,6 @@ module.exports.checkUser = function(userData) {
             // If an user was found, check if the password matches the received one. If not, reject the promise with PASSWORD MISMATCH message.
             else{
 
-                console.log('%c' + userData.password, 'color:orange');
-                console.log('%c' + user[0].password, 'color:cyan');
-
                 // Compare the received password with the encrypted password in the database
                 bcrypt.compare(userData.password, user[0].password)
                 
@@ -130,7 +131,7 @@ module.exports.checkUser = function(userData) {
                 .then((res) => {
                     
                     // If the passwords do not match, reject the promise with an error message and leave the function
-                    if(res === fail)
+                    if(res === false)
                         reject("Incorrect Password for user: " + userData.userName);
 
                     // Push the new login into the login history
