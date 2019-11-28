@@ -426,12 +426,15 @@ app.get("*", (req, res) => {
 
 
 // ----------------------------------------
+//          Server Initialization
 // ----------------------------------------
 
 
 // setup http server to listen on HTTP_PORT
 // Only after the initialize function has been resolved.
-data_serv.initialize().then(() => { 
+data_serv.initialize()
+.then(dataServiceAuth.initialize) // Initialize authentication services
+.then(() => { 
 
     // Start the server.
     app.listen(HTTP_PORT);
