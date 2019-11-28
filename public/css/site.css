@@ -32,3 +32,17 @@ section.notfound article a:hover {
     color:#262626;
     border:1px solid #a5a5a5;
 }
+
+/* Login Page */
+div.login-form {
+    padding: 0px 15px;
+    border: 1px solid #b7ceda;
+}
+
+div.login-form hr {
+    border-top:1px solid #b7ceda;
+}
+
+div.login-form h3 {
+    line-height: 12px;
+}

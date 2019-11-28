@@ -57,12 +57,12 @@ module.exports.registerUser = function(userData){
             if(err){
 
                 // Check if the error was duplicate key. If TRUE, reject promise with USER TAKEN message.
-                if(err == 11000)
+                if(err.code == 11000)
                     reject("User Name already taken");
                 
                 // If not duplicate key, reject the promise with according error message.
                 else
-                    reject("There was an error creating the user: ${err}");
+                    reject("There was an error creating the user: " + err);
 
             } // if(err)
             
@@ -79,59 +79,63 @@ module.exports.registerUser = function(userData){
 // Try to authenticate the user
 module.exports.checkUser = function(userData) {
 
-    // Try to find the user in the database
-    User.find({ userName : userData.userName }).exec()
-        
-    // If .find() resolved succcesfully:
-    .then((user) => {
-
-        // Check if any user was found. If FALSE, reject promise with USER NOT FOUND message.
-        if(user.length == 0)
-            reject("Unable to find user: ${userData.userName}");
-        
-        // If an user was found, check if the password matches the received one. If not, reject the promise with PASSWORD MISMATCH message.
-        else if(user[0].password != userData.password)
-            reject("Incorrect Password for user: ${userData.userName}"); // Just so you know: this error message is insecure as it tells that your login is correct.
-        
-        // If the user was found and the password matches, resolve the promise.
-        else {
-
-            // Push the new login into the login history
-            user[0].loginHistory.push({ 
-                dateTime : new Date().toString(),
-                userAgent : userData.userAgent
-            }); // push()
-
-            // User.updateOne('')
-            // Update the database with the new login history
-            User.update(
-                { userName : userData.userName },
-                { $set : { loginHistory : user[0].loginHistory }}
-            ).exec()
+    return new Promise(function (resolve, reject){
+    
+        // Try to find the user in the database
+        User.find({ userName : userData.userName }).exec()
             
-            // If the update was successful, resolve the promise and return the found user 
-            .then(() => {
+        // If .find() resolved succcesfully:
+        .then((user) => {
 
-                resolve(user[0]);
+            // Check if any user was found. If FALSE, reject promise with USER NOT FOUND message.
+            if(user.length == 0)
+                reject("Unable to find user: " + userData.userName);
+            
+            // If an user was found, check if the password matches the received one. If not, reject the promise with PASSWORD MISMATCH message.
+            else if(user[0].password != userData.password)
+                reject("Incorrect Password for user: " + userData.userName); // Just so you know: this error message is insecure as it tells that your login is correct.
+            
+            // If the user was found and the password matches, resolve the promise.
+            else {
 
-            })
+                // Push the new login into the login history
+                user[0].loginHistory.push({ 
+                    dateTime : new Date().toString(),
+                    userAgent : userData.userAgent
+                }); // push()
 
-            // Otherwise, reject the promise with an error message
-            .catch((err) => {
+                // User.updateOne('')
+                // Update the database with the new login history
+                User.update(
+                    { userName : userData.userName },
+                    { $set : { loginHistory : user[0].loginHistory }}
+                ).exec()
+                
+                // If the update was successful, resolve the promise and return the found user 
+                .then(() => {
 
-                reject("There was an error verifying the user: ${err}");
+                    resolve(user[0]);
 
-            }); // update()
+                })
 
-        } // else
+                // Otherwise, reject the promise with an error message
+                .catch((err) => {
 
-    }) // find().then()
+                    reject("There was an error verifying the user: " + err);
 
-    // If find() failed, reject the promise with an error message
-    .catch((err) => {
+                }); // update()
 
-        reject("Unable to find user: ${userData.userName}");
+            } // else
 
-    }); // catch()
+        }) // find().then()
+
+        // If find() failed, reject the promise with an error message
+        .catch((err) => {
+
+            reject("Unable to find user: " + userData.userName);
+
+        }); // catch()
+    
+    }); // Promise()
 
 }; // checkUser()
