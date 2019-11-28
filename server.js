@@ -452,6 +452,93 @@ app.post("/images/add", ensureLogin, upload.single("imageFile"), (req, res) => {
 
 
 // ----------------------------------------
+//        Authentication GET Routes
+// ----------------------------------------
+
+// Login page
+app.get("/login", (req, res) => {
+    res.render('login');
+});
+
+// Register page
+app.get("/register", (req, res) => {
+    res.render('register');
+});
+
+// Logout
+app.get("/logout", (req, res) => {
+    req.session.reset();
+    res.redirect("/login");
+});
+
+// Get history
+app.get("/userHistory", ensureLogin, (req, res) => {
+    res.render('userHistory');
+});
+
+
+
+// ----------------------------------------
+//       Authentication POST Routes
+// ----------------------------------------
+
+// Login submit
+app.post("/login", (req, res) => {
+
+    // Set the body object userAgent to the user's User Agent
+    req.body.userAgent = req.get('User-Agent');
+
+    // Attempt to login
+    dataServiceAuth.checkUser(req.body)
+    
+    // If successful, set the user's data to the local session and redirect the page to /employees
+    .then((user) => {
+
+        req.session.user = {
+
+            userName : user.userName,
+            email : user.email,
+            loginHistory : user.loginHistory
+
+        } // req.session.user
+
+        res.redirect('/employees');
+
+    }) // then()
+
+    // Otherwise render the login page with an error message
+    .catch((err) => {
+
+        res.render('login', { errorMessage : err, userName : req.body.userName });
+
+    }); // catch()
+});
+
+// Register submit
+app.post("/register", (req, res) => {
+
+    // Attempt to register new user
+    dataServiceAuth.registerUser(req.body)
+
+    // If successful, display a message confirming new user registration
+    .then(() => {
+
+        res.render('register', { successMessage : "User created successfully"});
+
+    }) // then()
+
+    // Display an error message otherwise
+    .catch((err) => {
+
+        res.render('register', { errorMessage : err, userName : req.body.userName });
+
+    }); // catch()
+
+}); // app.post('register')
+
+
+
+// ----------------------------------------
 //         Miscellaneous GET Routes
 // ----------------------------------------
 
