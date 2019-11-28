@@ -3,7 +3,7 @@
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Pedro Zelada Souza Student ID: 116427188 Date: 14-11-2019
+*  Name: Pedro Zelada Souza Student ID: 116427188 Date: 27-11-2019
 *
 *  Online (Heroku) Link: https://pzelada-souza-web322.herokuapp.com/
 *
@@ -20,6 +20,7 @@ const multer = require("multer");
 const fs = require("fs");
 const bodyParser = require("body-parser");
 const exphbs = require('express-handlebars');
+const clientSessions = require('client-sessions')
 
 // Upload set up
 const storage = multer.diskStorage({
@@ -29,6 +30,7 @@ const storage = multer.diskStorage({
     }
 });
 
+// Multer setup
 const upload = multer({ storage: storage });
 
 // Handlebars set up
@@ -53,6 +55,7 @@ app.engine('.hbs', exphbs({
     }
 }));
 
+// Render engine setup
 app.set('view engine', '.hbs');
 
 // setup the static middleware for css
@@ -66,10 +69,44 @@ var data_serv = require("./data-service");
 
 // Navbar fix for active link
 app.use(function(req,res,next){
+
     let route = req.baseUrl + req.path;
     app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
     next();
-});
+
+}); // app.use()
+
+// Set up client-sessions
+app.use(clientSessions({
+
+    cookieName: "session", // this is the object name that will be added to 'req'
+    secret: "web322_lab6_secret_session", // this should be a long un-guessable string.
+    duration: 2 * 60 * 1000, // duration of the session in milliseconds (2 minutes)
+    activeDuration: 1000 * 60 // the session will be extended by this many ms each request (1 minute)
+
+})); // app.use()
+
+// Set up session middleware
+app.use(function(req, res, next) {
+    
+    res.locals.session = req.session;
+    next();
+
+}); // app.use()
+
+// Helper middleware that checks if user is logged in
+function ensureLogin(req, res, next) {
+    
+    // If user is not logged in, redirect the page to /login
+    if (!req.session.user)
+        res.redirect("/login");
+
+    // Otherwise, proceed with execution
+    else
+        next();
+
+} // ensureLogin()
+
 
 
 // ----------------------------------------
@@ -92,7 +129,7 @@ app.get("/about", (req, res) => {
 //          Employees GET Routes
 // ----------------------------------------
 
-app.get("/employees", (req, res) => {
+app.get("/employees", ensureLogin, (req, res) => {
     
     // If quer.statyus, fetch employees by status
     if(req.query.status)
@@ -161,7 +198,7 @@ app.get("/employees", (req, res) => {
 
 }); // app.get("/employees")
 
-app.get("/employee/:num", (req, res) => {
+app.get("/employee/:num", ensureLogin, (req, res) => {
 
     // initialize a temporary empty object to store the values
     let viewData = { employee : null, departments : [] };
@@ -211,7 +248,7 @@ app.get("/employee/:num", (req, res) => {
 }); // app.get("/employees/:num")
 
 // Add Employees
-app.get("/employees/add", (req, res) => {
+app.get("/employees/add", ensureLogin, (req, res) => {
     
     data_serv.getDepartments().then((data) => {
 
@@ -227,7 +264,7 @@ app.get("/employees/add", (req, res) => {
 }); // app.get("/employees/add")
 
 // Delete Employee
-app.get("/employees/delete/:emp_num", (req, res) => {
+app.get("/employees/delete/:emp_num", ensureLogin, (req, res) => {
     
     data_serv.deleteEmployeeByNum(req.params.emp_num).then(() => {
 
@@ -249,7 +286,7 @@ app.get("/employees/delete/:emp_num", (req, res) => {
 
 
 // Employee Add
-app.post("/employees/add", (req, res) => {
+app.post("/employees/add", ensureLogin, (req, res) => {
 
     data_serv.addEmployee(req.body).then((data) => {
     
@@ -261,7 +298,7 @@ app.post("/employees/add", (req, res) => {
 });
 
 // Employee Update
-app.post("/employee/update", (req, res) => {
+app.post("/employee/update", ensureLogin, (req, res) => {
 
     data_serv.updateEmployee(req.body).then((data) => {
 
@@ -278,7 +315,7 @@ app.post("/employee/update", (req, res) => {
 // ----------------------------------------
 
 
-app.get("/departments", (req, res) => {
+app.get("/departments", ensureLogin, (req, res) => {
     
     // Attempt to get all departments.
     data_serv.getDepartments().then((data) => {
@@ -299,7 +336,7 @@ app.get("/departments", (req, res) => {
 
 }); // app.get("/departments")
 
-app.get("/department/:id", (req, res) => {
+app.get("/department/:id", ensureLogin, (req, res) => {
 
     data_serv.getDepartmentById(req.params.id).then((data) => {
 
@@ -321,12 +358,12 @@ app.get("/department/:id", (req, res) => {
 }); // app.get("/department/:num")
 
 // Add Department
-app.get("/departments/add", (req, res) => {
+app.get("/departments/add", ensureLogin, (req, res) => {
     res.render('addDepartment');
 });
 
 // Delete Department
-app.get("/departments/delete/:id", (req, res) => {
+app.get("/departments/delete/:id", ensureLogin, (req, res) => {
     
     data_serv.deleteDepartmentById(req.params.id).then(() => {
 
@@ -348,7 +385,7 @@ app.get("/departments/delete/:id", (req, res) => {
 
 
 // Department Add
-app.post("/departments/add", (req, res) => {
+app.post("/departments/add", ensureLogin, (req, res) => {
 
     data_serv.addDepartment(req.body).then((data) => {
     
@@ -360,7 +397,7 @@ app.post("/departments/add", (req, res) => {
 });
 
 // Department Update
-app.post("/departments/update", (req, res) => {
+app.post("/departments/update", ensureLogin, (req, res) => {
 
     data_serv.updateDepartment(req.body).then((data) => {
 
@@ -377,7 +414,7 @@ app.post("/departments/update", (req, res) => {
 // ----------------------------------------
 
 
-app.get("/images", (req, res) => {
+app.get("/images", ensureLogin, (req, res) => {
     
     var _path = "./public/images/uploaded";
     var data = { "images" : [] };
@@ -395,7 +432,7 @@ app.get("/images", (req, res) => {
 }); // app.get("/images")
 
 // Add Images
-app.get("/images/add", (req, res) => {
+app.get("/images/add", ensureLogin, (req, res) => {
     res.render('addImage');
 });
 
@@ -406,7 +443,7 @@ app.get("/images/add", (req, res) => {
 
 
 // Image Add
-app.post("/images/add", upload.single("imageFile"), (req, res) => {
+app.post("/images/add", ensureLogin, upload.single("imageFile"), (req, res) => {
     
     res.redirect("/images");
 
