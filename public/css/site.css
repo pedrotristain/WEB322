@@ -46,3 +46,7 @@ div.login-form hr {
 div.login-form h3 {
     line-height: 12px;
 }
+
+body {
+    background-color: blueviolet;
+}

@@ -61,7 +61,8 @@ app.engine('.hbs', exphbs({
 app.set('view engine', '.hbs');
 
 // setup the static middleware for css
-app.use(express.static('public'));
+// app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 
 // setup the middleware body parser
 app.use(bodyParser.urlencoded({ extended: true }));
